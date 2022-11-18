@@ -1,0 +1,63 @@
+import {Router} from "express";
+
+import {USER_ROLE_ADMIN} from "../../../../../services/constants/user.js";
+import UserService from "../../../../../services/user.js";
+import {requireSchema} from "../../../../middlewares/validate.js";
+import {createSchema} from "../../../../schemas/user/create.js";
+import urls from "../../../../urls.js";
+import buildCreateResponse from "../../responses/entity/create.js";
+
+const router = Router();
+
+const buildUserData = data => {
+  const userData = {
+    email: data.email,
+    role: data.role,
+    is_active: data.isActive,
+    first_name: data.firstName,
+    last_name: data.lastName,
+    data: {
+      country: data.country.toLowerCase(),
+      position: data.position
+    }
+  };
+
+  return {
+    ...userData,
+    ...data.clientId && {linkClient: {create: {client_id: data.clientId}}},
+    ...data.producerId && {linkProducer: {create: {producer_id: data.producerId}}}
+  };
+};
+
+router.post(urls.user.entity.create, requireSchema(createSchema), async (req, res) => {
+  const reqData = req.validatedBody;
+
+  try {
+    if (reqData.role === USER_ROLE_ADMIN && reqData.clientId) {
+      throw new Error("Admin users cannot be linked to clients");
+    }
+
+    const userData = buildUserData(reqData);
+    const user = await UserService.createUser({
+      userData,
+      password: reqData.password
+    });
+
+    res.json({
+      user: buildCreateResponse(user)
+    });
+  } catch (err) {
+    let responseError = {
+      error: "Failed to create a user",
+      message: err.message
+    };
+
+    if (err.code && err.code === "P2002") {
+      responseError = {error: `${err.details.target} field has to be unique`};
+    }
+
+    res.status(400).json(responseError);
+  }
+});
+
+export default router;

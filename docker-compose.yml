@@ -1,0 +1,32 @@
+version: '3'
+services:
+  api:
+    container_name: 'kwota-web-api'
+    stdin_open: true
+    build:
+      context: .
+      dockerfile: docker/dev/Dockerfile
+    depends_on:
+      - postgres
+    ports:
+      - "8080:8080"
+    env_file:
+      - ./.env.development
+    restart: always
+    volumes:
+      - ./:/usr/api
+      - /api/node_modules
+
+  postgres:
+    container_name: 'kwota-postgres'
+    image: postgres:14.3-alpine
+    command: postgres -c stats_temp_directory=/tmp
+    restart: always
+    environment:
+      - POSTGRES_USER=root
+      - POSTGRES_PASSWORD=root
+      - POSTGRES_DB=kwota
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./.docker/postgres/data:/var/lib/postgresql/data

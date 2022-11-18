@@ -1,0 +1,81 @@
+name: Kwota API pipeline
+
+on:
+  push:
+    branches-ignore:
+      - main
+
+env:
+  AWS_REGION: eu-central-1
+  ECR_REPOSITORY: kwota-web-api
+  ECS_SERVICE: kwota-web-api
+  ECS_CLUSTER: main-cluster
+  ECS_TASK_DEFINITION: .aws/tasks/kwota-web-api.json
+  CONTAINER_NAME: api
+  NPM_AUTH_TOKEN: ${{ secrets.PACKAGE_REGISTRY_TOKEN }}
+
+jobs:
+  eslint:
+    name: Run ESlint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+      - name: Setup node
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+      - run: npm ci
+      - run: npm run lint
+
+  deploy-production:
+    needs: eslint
+
+    name: Deploy Production
+    runs-on: ubuntu-latest
+    environment: production
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@13d241b293754004c80624b5567555c4a39ffbe3
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@aaf69d68aa3fb14c1d5a6be9ac61fe15b48453a2
+
+      - name: Build, tag, and push image to Amazon ECR
+        id: build-image
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          IMAGE_TAG: latest # There is currently no point to generate a new image revision - ${{ github.sha }}
+          DATABASE_URL: postgresql://${{ secrets.RDS_DB_USER }}:${{ secrets.RDS_DB_PASSWORD }}@kwota-main.cbfs3xvbjv1n.eu-central-1.rds.amazonaws.com:5432/platform
+          NOTION_API_SECRET: ${{ secrets.NOTION_API_SECRET }}
+        run: |
+          # Build a docker container and push it to ECR so that it can be deployed to ECS.
+
+          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG . -f docker/prod/Dockerfile --build-arg DATABASE_URL=$DATABASE_URL --build-arg NOTION_API_SECRET=$NOTION_API_SECRET
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+          echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
+
+      - name: Fill in the new image ID in the Amazon ECS task definition
+        id: task-def
+        uses: aws-actions/amazon-ecs-render-task-definition@97587c9d45a4930bf0e3da8dd2feb2a463cf4a3a
+        with:
+          task-definition: ${{ env.ECS_TASK_DEFINITION }}
+          container-name: ${{ env.CONTAINER_NAME }}
+          image: ${{ steps.build-image.outputs.image }}
+
+      - name: Deploy Amazon ECS task definition
+        uses: aws-actions/amazon-ecs-deploy-task-definition@v1
+        with:
+          task-definition: ${{ steps.task-def.outputs.task-definition }}
+          service: ${{ env.ECS_SERVICE }}
+          cluster: ${{ env.ECS_CLUSTER }}
+          wait-for-service-stability: true

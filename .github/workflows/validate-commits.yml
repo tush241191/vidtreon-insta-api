@@ -1,0 +1,13 @@
+name: Validate commits
+
+on: [pull_request]
+
+jobs:
+  block-fixup:
+    name: Block fixup commits from reaching main branch
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2.0.0
+      - name: Block Fixup/Squash Merge
+        uses: 13rac1/block-fixup-merge-action@master

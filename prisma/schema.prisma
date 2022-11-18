@@ -1,0 +1,303 @@
+generator client {
+  provider = "prisma-client-js"
+  binaryTargets = ["native", "linux-arm64-openssl-1.1.x"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Client {
+  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name String @unique
+  type String
+  is_active Boolean @default(true)
+  data Json?
+  created_at DateTime @default(now())
+  updated_at DateTime @default(now())
+  deleted_at DateTime?
+
+  users UserClient[] @relation("ClientUserClient")
+  customers ClientCustomer[] @relation("ClientCustomerClient")
+  purchases Purchase[] @relation("PurchaseClient")
+
+  @@index([name])
+  @@map(name: "client")
+}
+
+model Producer {
+  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name String @unique
+  url String?
+  data Json?
+  is_verified Boolean @default(false)
+  is_active Boolean @default(true)
+  created_at DateTime @default(now())
+  updated_at DateTime @default(now())
+  deleted_at DateTime?
+
+  users UserProducer[] @relation("ProducerUserProducer")
+  facilities ProducerFacility[] @relation("FacilityProducer")
+  logs ProducerLog[] @relation("ProducerLogProducer")
+
+  @@index([name])
+  @@map(name: "producer")
+}
+
+model ProducerLog {
+  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  producer_id String @db.Uuid
+  event String
+  created_by String @db.Uuid
+  created_at DateTime @default(now())
+
+  creator User @relation("ProducerLogCreator", fields: [created_by], references: [id])
+  producer Producer @relation(name: "ProducerLogProducer", fields: [producer_id], references: [id])
+
+  @@map(name: "producer_log")
+}
+
+model ProducerFacility {
+  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  producer_id String @db.Uuid
+  name String @unique
+  benchmark Int // A.k.a Facility constant
+  type String
+  price Float
+  buffer_percentage Int @default(20)
+  additionality_percentage Int @default(0)
+  is_active Boolean @default(true)
+  created_at DateTime @default(now())
+  updated_at DateTime @default(now())
+  deleted_at DateTime?
+
+  producer Producer @relation(name: "FacilityProducer", fields: [producer_id], references: [id])
+  meta ProducerFacilityMeta? @relation(name: "ProducerFacilityMeta")
+  purchases Purchase[] @relation("PurchaseFacility")
+  inputs ProducerFacilityInput[] @relation("ProducerFacilityInput")
+  credits ProducerFacilityCredit[] @relation("ProducerFacilityCredit")
+
+  @@index([name])
+  @@map(name: "producer_facility")
+}
+
+model ProducerFacilityMeta {
+  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  facility_id String @db.Uuid @unique
+  country String
+  design_definitions Json?
+  highlight_features Json?
+  created_at DateTime @default(now())
+  updated_at DateTime @default(now())
+
+  facility ProducerFacility @relation(name: "ProducerFacilityMeta", fields: [facility_id], references: [id])
+
+  @@map(name: "producer_facility_meta")
+}
+
+// @TODO Inputs can be of type IN & OUT.
+// This needs to be taken into consideration in the future as well as some input materials are sold as-is and are hence
+// directly going OUT of the facility as they came in. Perhaps we can not even insert those.
+model ProducerFacilityInput {
+  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  facility_id String @db.Uuid
+  validation_hash String
+  tonnes_input Decimal @db.Decimal(65, 6) // Total input of material the facility received
+  tonnes_additionality Decimal @db.Decimal(65, 6) // Calcualted from input material tonnes and convereted to credits
+  state String // Defined if the input has bene processed already and converetd into credits
+  created_at DateTime @default(now())
+  updated_at DateTime @default(now())
+
+  meta ProducerFacilityInputMeta? @relation(name: "ProducerFacilityInputMeta")
+  facility ProducerFacility @relation(name: "ProducerFacilityInput", fields: [facility_id], references: [id])
+  credit ProducerFacilityCredit? @relation(name: "ProducerFacilityInputCredit")
+
+  @@unique([facility_id, validation_hash], name: "inputBatchIdentifier")
+  @@map(name: "producer_facility_input")
+}
+
+model ProducerFacilityInputMeta {
+  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  input_id String @db.Uuid @unique
+  collector String
+  waste_code String
+  material_type String
+  full_dataset Json
+  created_at DateTime @default(now())
+  updated_at DateTime @default(now())
+
+  input ProducerFacilityInput @relation(name: "ProducerFacilityInputMeta", fields: [input_id], references: [id])
+
+  @@map(name: "producer_facility_input_meta")
+}
+
+model ProducerFacilityCredit {
+  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  facility_id String @db.Uuid
+  input_id String @db.Uuid @unique
+  validation_hash String // TBD; hash should consist on base_amount of credits generated from addiitionality and input data
+  tonnes_base_amount Decimal @db.Decimal(65, 6) // Calculcated from input additionaltiy by multipling with Facility benchmark
+  tonnes_buffer Decimal @db.Decimal(65, 6) // Credits not made available to purchasing calcualted upon credit creation based on facility buffer percentage
+  tonnes_available Decimal @db.Decimal(65, 6) // Available amount of credits that can be retired ( purchased )
+  tonnes_reserved Decimal @db.Decimal(65, 6) // Credits reserve meant to act as mediator in case when reversal is needed
+  tonnes_retired Decimal @db.Decimal(65, 6) // Consumed amount that has successfully been retired ( purchased )
+  created_at DateTime @default(now())
+  updated_at DateTime @default(now())
+
+  facility ProducerFacility @relation(name: "ProducerFacilityCredit", fields: [facility_id], references: [id])
+  input ProducerFacilityInput @relation(name: "ProducerFacilityInputCredit", fields: [input_id], references: [id])
+  purchaseCredits PurchaseCredit[] @relation("PurchaseFacilityCredit")
+
+  @@unique([validation_hash, facility_id], name: "facilityCreditFacilityIdentifier")
+  @@unique([validation_hash, input_id], name: "facilityCreditInputIdentifier")
+  @@index([facility_id, input_id])
+  @@map(name: "producer_facility_credit")
+}
+
+model Purchase {
+  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  facility_id String @db.Uuid
+  client_id String @db.Uuid
+  validation_hash String // TBD; has to validate who bought, how much and when ( expiry )
+  purpose String
+  tonnes Decimal @db.Decimal(65, 6)
+  tonne_price Float
+  state String
+  meta Json?
+  date DateTime @default(now())
+  created_at DateTime @default(now())
+  updated_at DateTime @default(now())
+
+  facility ProducerFacility @relation(name: "PurchaseFacility", fields: [facility_id], references: [id])
+  client Client @relation(name: "PurchaseClient", fields: [client_id], references: [id])
+
+  logs PurchaseLog[] @relation("PurchaseLogPurchase")
+  credits PurchaseCredit[] @relation("PurchaseCredit")
+
+  @@unique([client_id, validation_hash], name: "clientPurchaseIdentifier")
+  @@map(name: "purchase")
+}
+
+model PurchaseLog {
+  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  purchase_id String @db.Uuid
+  event String
+  data Json?
+  created_at DateTime @default(now())
+
+  purchase Purchase @relation(name: "PurchaseLogPurchase", fields: [purchase_id], references: [id])
+
+  @@map(name: "purchase_log")
+}
+
+model PurchaseCredit {
+  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  purchase_id String @db.Uuid
+  credit_id String @db.Uuid
+  tonnes Decimal @db.Decimal(65, 6)
+  created_at DateTime @default(now())
+
+  credit ProducerFacilityCredit @relation(name: "PurchaseFacilityCredit", fields: [credit_id], references: [id])
+  purchase Purchase @relation(name: "PurchaseCredit", fields: [purchase_id], references: [id])
+
+  @@map(name: "purchase_credit")
+}
+
+model User {
+  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  email String @db.VarChar(255) @unique
+  password String @db.VarChar(255)
+  refresh_id String @db.VarChar(255) @unique
+  first_name String @db.VarChar(255)
+  last_name String @db.VarChar(255)
+  role String
+  is_active Boolean @default(true)
+  data Json?
+  last_login_at DateTime?
+  created_at DateTime @default(now())
+  updated_at DateTime @default(now())
+  deleted_at DateTime?
+
+  linkClient UserClient? @relation("ClientUserLink")
+  linkProducer UserProducer? @relation("ProducerUserLink")
+
+  producerLogs ProducerLog[] @relation("ProducerLogCreator")
+
+  @@index([email])
+  @@map(name: "user")
+}
+
+model UserClient {
+  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  client_id String @db.Uuid
+  user_id String @db.Uuid @unique
+  created_at DateTime @default(now())
+
+  client Client @relation(name: "ClientUserClient", fields: [client_id], references: [id])
+  user User @relation(name: "ClientUserLink", fields: [user_id], references: [id])
+
+  @@index([client_id, user_id])
+  @@map(name: "user_client")
+}
+
+model UserProducer {
+  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  producer_id String @db.Uuid
+  user_id String @db.Uuid @unique
+  created_at DateTime @default(now())
+
+  producer Producer @relation(name: "ProducerUserProducer", fields: [producer_id], references: [id])
+  user User @relation(name: "ProducerUserLink", fields: [user_id], references: [id])
+
+  @@index([producer_id, user_id])
+  @@map(name: "user_producer")
+}
+
+model ClientCustomer {
+  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  client_id String @db.Uuid
+  name String
+  type String
+
+  created_at DateTime @default(now())
+  updated_at DateTime @default(now())
+  deleted_at DateTime?
+
+  vehicles ClientCustomerVehicle[] @relation("VehicleClientCustomer")
+  client Client @relation(name: "ClientCustomerClient", fields: [client_id], references: [id])
+  @@map(name: "client_customer")
+}
+
+model ClientCustomerVehicle {
+  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  customer_id String @db.Uuid
+  license_plate String @db.VarChar(255)
+  vin_code String @db.VarChar(255)
+  make String @db.VarChar(255)
+  model String @db.VarChar(255)
+  owner String @db.VarChar(255)
+  co_wltp String? @db.VarChar(255)
+  co_nedc String? @db.VarChar(255)
+  monthly_fee Decimal @db.Decimal(65, 6)
+  allowed_monthly_mileage Decimal
+  contract_start DateTime
+  contract_end DateTime
+
+  created_at DateTime @default(now())
+  updated_at DateTime @default(now())
+  deleted_at DateTime?
+
+  customer ClientCustomer @relation(name: "VehicleClientCustomer", fields: [customer_id], references: [id])
+  @@map(name: "client_customer_vehicle")
+}
+
+model CustomerVehicleCache {
+  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  license_plate String @db.VarChar(255)
+  vin_code String @db.VarChar(255)
+  data Json
+
+  created_at DateTime @default(now())
+  @@map(name: "customer_vehicle_cache")
+}
