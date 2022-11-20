@@ -6,7 +6,7 @@ import buildListResponse from "../../responses/entity/list.js";
 
 const router = Router();
 
-router.get(urls.user.collection.list, async (req, res) => {
+router.get(urls.user.entity.list, async (req, res) => {
   try {
     const userList = await UserService.list();
     const response = buildListResponse(userList);

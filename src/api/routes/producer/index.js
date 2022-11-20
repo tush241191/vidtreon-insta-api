@@ -6,14 +6,10 @@ import routeDelete from "./paths/delete.js";
 import routeList from "./paths/list.js";
 import routeRead from "./paths/read.js";
 import routeUpdate from "./paths/update.js";
-import routeVerify from "./paths/verify.js";
 
 const router = Router();
 
 router.use(requireJwt);
-
-/** PRODUCER endpoints */
-router.use("/", routeVerify);       /** ../producer/:id/verify/:step/ - POST */
 
 /** ADMIN endpoints */
 router.use("/", routeCreate);       /** ../producer/create/  - POST */
