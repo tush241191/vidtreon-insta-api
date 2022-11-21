@@ -117,8 +117,7 @@ class UserService extends BaseService {
       };
 
       const user = await User.create({
-        data: data,
-        include: includeRoleBasedData(data.role)
+        data: data
       });
 
       delete user.password;

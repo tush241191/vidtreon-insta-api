@@ -6,7 +6,7 @@ export const createSchema = {
     "email",
     "password",
     "role",
-    "isActive",
+    "instaToken",
     "firstName",
     "lastName",
     "country",
@@ -17,22 +17,10 @@ export const createSchema = {
     email: {type: "string", format: "email"},
     password: {type: "string", minLength: 8, maxLength: 128},
     role: {type: "string", enum: USER_ROLES},
-    isActive: {type: "boolean"},
+    instaToken: {type: "string"},
     firstName: {type: "string"},
     lastName: {type: "string"},
-    country: {type: "string", enum: ["estonia", "sweden", "finland"]},
-    position: {type: "string"},
-    clientId: {type: "string", format: "uuid"},
-    producerId: {type: "string", format: "uuid"}
-  },
-  allOf: [
-    {
-      if: {properties: {role: {const: USER_ROLE_CLIENT}}},
-      then: {required: ["clientId"]}
-    },
-    {
-      if: {properties: {role: {const: USER_ROLE_PRODUCER}}},
-      then: {required: ["producerId"]}
-    }
-  ]
+    country: {type: "string"},
+    position: {type: "string"}
+  }
 };

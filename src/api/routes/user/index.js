@@ -13,6 +13,7 @@ import routeValidate from "./paths/entity/validate.js";
 const router = Router();
 
 router.use("/", routeLogin);            /** ../user/login/ - POST */
+router.use("/", routeCreate);           /** ../user/create/ - POST */
 
 router.use(requireJwt);
 router.use("/", routeValidate);         /** ../user/validate/ - GET */
@@ -21,7 +22,6 @@ router.use("/", routeLogout);           /** ../user/logout/ - POST */
 router.use(requireAdminRole);
 
 /** Single Entity Routes */
-router.use("/", routeCreate);           /** ../user/create/ - POST */
 router.use("/", routeDelete);           /** ../user/:id/ - DELETE */
 router.use("/", routeList);             /** ../user/list/ - GET */
 router.use("/", routeRead);             /** ../user/:id/ - GET */

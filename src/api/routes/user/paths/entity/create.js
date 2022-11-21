@@ -13,29 +13,23 @@ const buildUserData = data => {
   const userData = {
     email: data.email,
     role: data.role,
-    is_active: data.isActive,
+    is_active: true,
     first_name: data.firstName,
     last_name: data.lastName,
+    insta_token: data.insta_token,
     data: {
       country: data.country.toLowerCase(),
       position: data.position
     }
   };
 
-  return {
-    ...userData,
-    ...data.clientId && {linkClient: {create: {client_id: data.clientId}}},
-    ...data.producerId && {linkProducer: {create: {producer_id: data.producerId}}}
-  };
+  return userData;
 };
 
 router.post(urls.user.entity.create, requireSchema(createSchema), async (req, res) => {
   const reqData = req.validatedBody;
 
   try {
-    if (reqData.role === USER_ROLE_ADMIN && reqData.clientId) {
-      throw new Error("Admin users cannot be linked to clients");
-    }
 
     const userData = buildUserData(reqData);
     const user = await UserService.createUser({
