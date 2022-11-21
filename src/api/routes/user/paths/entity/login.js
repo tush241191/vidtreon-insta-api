@@ -16,10 +16,7 @@ import buildUserResponse from "../../responses/entity/user.js";
 const router = Router();
 
 const validateAuthOrigin = (authOrigin, user) => {
-  if (authOrigin === USER_AUTH_ORIGIN_APP && user.role === USER_ROLE_CLIENT) {
-    return true;
-  }
-
+  
   if (authOrigin === USER_AUTH_ORIGIN_ADMIN && user.role === USER_ROLE_ADMIN) {
     return true;
   }

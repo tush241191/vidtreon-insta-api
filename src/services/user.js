@@ -14,10 +14,6 @@ const linkProducerIncludeData = {include: {producer: {include: {logs: true}}}};
 const linkClientIncludeData = {include: {client: true}};
 
 const includeRoleBasedData = userRole => {
-  if (userRole === USER_ROLE_CLIENT) {
-    return {linkClient: linkClientIncludeData};
-  }
-
   if (userRole === USER_ROLE_PRODUCER) {
     return {linkProducer: linkProducerIncludeData};
   }
@@ -39,11 +35,7 @@ class UserService extends BaseService {
   static async get(id) {
     try {
       const user = await User.findUnique({
-        where: {id},
-        include: {
-          linkClient: linkClientIncludeData,
-          linkProducer: linkProducerIncludeData
-        }
+        where: {id}
       });
 
       if (!user) return null;
@@ -67,10 +59,6 @@ class UserService extends BaseService {
         data: {
           ...data,
           ...{updated_at: new Date()}
-        },
-        include: {
-          linkClient: linkClientIncludeData,
-          linkProducer: linkProducerIncludeData
         }
       });
     } catch (err) {
@@ -106,8 +94,7 @@ class UserService extends BaseService {
 
       const updatedUser = await User.update({
         where: {id: user.id},
-        data: {last_login_at: user.last_login_at},
-        include: includeRoleBasedData(user.role)
+        data: {last_login_at: user.last_login_at}
       });
 
       delete updatedUser.password;
