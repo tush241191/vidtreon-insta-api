@@ -24,15 +24,13 @@ model User {
   updated_at DateTime @default(now())
   deleted_at DateTime?
 
-  linkInstaFeed InstaFeed? @relation("UserInstaFeedLink")
-
   @@index([email])
   @@map(name: "user")
 }
 
 model InstaFeed {
   id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  user_id String @db.Uuid @unique
+  user_id String
   caption String?
   feed_id String
   media_type String?
@@ -40,10 +38,8 @@ model InstaFeed {
   title String?
   desciption String?
   data Json?
+  status String
   is_active Boolean @default(true)
-
-  user User @relation(name: "UserInstaFeedLink", fields: [user_id], references: [id])
-
   created_at DateTime @default(now())
   @@map(name: "user_insta_feed")
 }

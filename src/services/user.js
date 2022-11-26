@@ -1,3 +1,4 @@
+import { log } from "console";
 import {randomBytes} from "crypto";
 
 import DatabaseError from "../models/error.js";

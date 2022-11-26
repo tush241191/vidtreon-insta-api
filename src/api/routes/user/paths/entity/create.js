@@ -16,7 +16,7 @@ const buildUserData = data => {
     is_active: true,
     first_name: data.firstName,
     last_name: data.lastName,
-    insta_token: data.insta_token,
+    insta_token: data.instaToken,
     data: {
       country: data.country.toLowerCase(),
       position: data.position

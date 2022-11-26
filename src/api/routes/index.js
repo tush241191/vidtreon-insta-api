@@ -3,7 +3,6 @@ import {Router} from "express";
 import {pathUrl} from "../../utils/router.js";
 import {handle404, handleError} from "../middlewares/errors.js";
 import urls from "../urls.js";
-import producerRouter from "./producer/index.js";
 import userRouter from "./user/index.js";
 
 const router = Router();
@@ -11,7 +10,6 @@ const router = Router();
 /**
  * Routes containing all of the defined paths for the API
  */
-router.use(pathUrl(urls.producer), producerRouter);
 router.use(pathUrl(urls.user), userRouter);
 
 /**

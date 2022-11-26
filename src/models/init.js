@@ -5,4 +5,4 @@ const {PrismaClient} = Prisma || {};
 const prisma = PrismaClient ? new PrismaClient() : {};
 
 export const User = prisma.user;
-export const Producer = prisma.producer;
+export const InstaFeed = prisma.instaFeed;

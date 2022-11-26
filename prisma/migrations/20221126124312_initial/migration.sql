@@ -21,7 +21,7 @@ CREATE TABLE "user" (
 -- CreateTable
 CREATE TABLE "user_insta_feed" (
     "id" UUID NOT NULL DEFAULT gen_random_uuid(),
-    "user_id" UUID NOT NULL,
+    "user_id" TEXT NOT NULL,
     "caption" TEXT,
     "feed_id" TEXT NOT NULL,
     "media_type" TEXT,
@@ -29,6 +29,7 @@ CREATE TABLE "user_insta_feed" (
     "title" TEXT,
     "desciption" TEXT,
     "data" JSONB,
+    "status" TEXT NOT NULL,
     "is_active" BOOLEAN NOT NULL DEFAULT true,
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
@@ -43,9 +44,3 @@ CREATE UNIQUE INDEX "user_refresh_id_key" ON "user"("refresh_id");
 
 -- CreateIndex
 CREATE INDEX "user_email_idx" ON "user"("email");
-
--- CreateIndex
-CREATE UNIQUE INDEX "user_insta_feed_user_id_key" ON "user_insta_feed"("user_id");
-
--- AddForeignKey
-ALTER TABLE "user_insta_feed" ADD CONSTRAINT "user_insta_feed_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "user"("id") ON DELETE RESTRICT ON UPDATE CASCADE;

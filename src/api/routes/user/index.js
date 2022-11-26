@@ -9,6 +9,7 @@ import routeLogout from "./paths/entity/logout.js";
 import routeRead from "./paths/entity/read.js";
 import routeUpdate from "./paths/entity/update.js";
 import routeValidate from "./paths/entity/validate.js";
+import routeFetch from "./paths/entity/fetch.js";
 
 const router = Router();
 
@@ -18,6 +19,7 @@ router.use("/", routeCreate);           /** ../user/create/ - POST */
 router.use(requireJwt);
 router.use("/", routeValidate);         /** ../user/validate/ - GET */
 router.use("/", routeLogout);           /** ../user/logout/ - POST */
+router.use("/", routeFetch);            /** ../user/:id/fetch/ - GET */
 
 router.use(requireAdminRole);
 
