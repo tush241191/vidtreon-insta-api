@@ -41,7 +41,9 @@ router.get(urls.user.entity.fetch, middlewares, async (req, res) => {
         if(res.data.data){
           res.data.data.map(async data => {
             const instaData = buildInstaData(data,userId);
-            const user = await InstaFeedService.createInstaFeed(instaData);
+            const instaFeed = await InstaFeedService.fetchInstaFeedById(instaData.feed_id)
+            if(instaFeed) return false
+            await InstaFeedService.createInstaFeed(instaData);
           })
         }        
       })

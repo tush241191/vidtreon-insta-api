@@ -32,7 +32,7 @@ model InstaFeed {
   id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   user_id String
   caption String?
-  feed_id String
+  feed_id String @unique
   media_type String?
   media_url String?
   title String?

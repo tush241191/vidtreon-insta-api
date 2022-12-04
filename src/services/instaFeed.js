@@ -29,6 +29,18 @@ class InstaFeedService extends BaseService {
     }
   }
 
+  static async fetchInstaFeedById(feedId) {
+   
+    try {
+      return await InstaFeed.findUnique({
+        where: {feed_id: feedId}
+      });
+    } catch (err) {
+      console.log(err)
+      throw new DatabaseError(err);
+    }
+  }
+
 }
 
 export default InstaFeedService;
