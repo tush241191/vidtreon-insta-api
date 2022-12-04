@@ -10,6 +10,7 @@ import routeRead from "./paths/entity/read.js";
 import routeUpdate from "./paths/entity/update.js";
 import routeValidate from "./paths/entity/validate.js";
 import routeFetch from "./paths/entity/fetch.js";
+import routeInstaList from "./paths/entity/instaList.js";
 
 const router = Router();
 
@@ -20,6 +21,7 @@ router.use(requireJwt);
 router.use("/", routeValidate);         /** ../user/validate/ - GET */
 router.use("/", routeLogout);           /** ../user/logout/ - POST */
 router.use("/", routeFetch);            /** ../user/:id/fetch/ - GET */
+router.use("/", routeInstaList);        /** ../user/:id/insta/ - GET */
 
 router.use(requireAdminRole);
 

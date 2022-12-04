@@ -17,6 +17,18 @@ class InstaFeedService extends BaseService {
     }
   }
 
+  static async fetchInstaFeeds(id) {
+   
+    try {
+      return await InstaFeed.findMany({
+        where: {user_id: id}
+      });
+    } catch (err) {
+      console.log(err)
+      throw new DatabaseError(err);
+    }
+  }
+
 }
 
 export default InstaFeedService;

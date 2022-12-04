@@ -11,7 +11,8 @@ export default {
       login: "/login",
       logout: "/logout",
       validate: "/validate",
-      fetch: "/:id/fetch"
+      fetch: "/:id/fetch",
+      instaList: "/:id/insta"
     }
   }
 };

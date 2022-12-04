@@ -8,25 +8,11 @@ const buildUpdateResponse = user => {
     isActive: user.is_active,
     firstName: user.first_name,
     lastName: user.last_name,
+    instaToken: user.insta_token,
     country: user.data.country,
     position: user.data.position
   };
-
-  const clientData = {
-    id: user.linkClient?.client?.id,
-    name: user.linkClient?.client?.name
-  };
-
-  const producerData = {
-    id: user.linkProducer?.producer?.id,
-    name: user.linkProducer?.producer?.name
-  };
-
-  return {
-    ...userData,
-    ...user.role === USER_ROLE_CLIENT && {client: clientData},
-    ...user.role === USER_ROLE_PRODUCER && {producer: producerData}
-  };
+  return userData;
 };
 
 export default buildUpdateResponse;

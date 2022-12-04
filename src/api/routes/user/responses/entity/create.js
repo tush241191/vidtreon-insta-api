@@ -8,6 +8,7 @@ const buildCreateResponse = user => {
     isActive: user.is_active,
     firstName: user.first_name,
     lastName: user.last_name,
+    instaToken: user.insta_token,
     country: user.data.country,
     position: user.data.position
   };
