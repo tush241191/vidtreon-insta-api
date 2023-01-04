@@ -7,7 +7,7 @@ services:
     name: sild-insta-pull
     env: node
     repo: https://github.com/tush241191/vidtreon-insta-api.git
-    buildCommand: "yarn"
+    buildCommand: "./bin/build.sh"
     startCommand: "node server.js"
     envVars:
       - key: DATABASE_URL
