@@ -3,6 +3,7 @@ const buildListResponse = userList => {
     return {
       id: user.id,
       email: user.email,
+      tenant: user.tenant,
       role: user.role,
       firstName: user.first_name,
       lastName: user.last_name,

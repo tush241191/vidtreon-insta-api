@@ -11,7 +11,7 @@ const router = Router();
 const buildUserData = data => {
   const userData = {
     email: data.email,
-    agent: data.agent,
+    tenant: data.tenant,
     role: data.role,
     is_active: true,
     first_name: data.firstName,

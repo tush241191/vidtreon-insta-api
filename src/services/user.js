@@ -1,25 +1,12 @@
-import {log} from "console";
 import {randomBytes} from "crypto";
 
 import DatabaseError from "../models/error.js";
 import {User} from "../models/init.js";
 import {generatePasswordHash, validatePassword} from "../utils/password.js";
 import BaseService from "./BaseService.js";
-import {USER_ROLE_CLIENT, USER_ROLE_PRODUCER} from "./constants/user.js";
 
 const generateRandomToken = () => {
   return randomBytes(48).toString("base64").replace(/[+/]/g, ".");
-}
-
-const linkProducerIncludeData = {include: {producer: {include: {logs: true}}}};
-const linkClientIncludeData = {include: {client: true}};
-
-const includeRoleBasedData = userRole => {
-  if (userRole === USER_ROLE_PRODUCER) {
-    return {linkProducer: linkProducerIncludeData};
-  }
-
-  return null;
 }
 
 class UserService extends BaseService {
@@ -48,10 +35,10 @@ class UserService extends BaseService {
     }
   }
 
-  static async getByAgent(agent) {
+  static async getByTenant(tenant) {
     try {
       const user = await User.findUnique({
-        where: {agent: agent}
+        where: {tenant: tenant}
       });
 
       if (!user) return null;

@@ -7,13 +7,13 @@ import buildInstaListResponse from "../../responses/entity/instaList.js";
 
 const router = Router();
 
-router.get(urls.user.entity.fetchAll, async (req, res) => {
+router.get(urls.user.entity.feeds, async (req, res) => {
   try {
-    const agent = req.params.agent;
-    const user = await UserService.getByAgent(agent);
+    const tenant = req.params.tenant;
+    const user = await UserService.getByTenant(tenant);
 
     if (!user) {
-      throw new Error(`User ${agent} does not exist`);
+      throw new Error(`User '${tenant}' does not exist`);
     }
 
     const list = await InstaFeedService.fetchInstaFeeds(user.id)

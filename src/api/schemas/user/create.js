@@ -4,7 +4,7 @@ export const createSchema = {
   type: "object",
   required: [
     "email",
-    "agent",
+    "tenant",
     "password",
     "role",
     "instaToken",
@@ -16,7 +16,7 @@ export const createSchema = {
   additionalProperties: false,
   properties: {
     email: {type: "string", format: "email"},
-    agent: {type: "string"},
+    tenant: {type: "string"},
     password: {type: "string", minLength: 8, maxLength: 128},
     role: {type: "string", enum: USER_ROLES},
     instaToken: {type: "string"},

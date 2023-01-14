@@ -3,6 +3,7 @@ export const updateSchema = {
   additionalProperties: false,
   properties: {
     email: {type: "string", format: "email"},
+    tenant: {type: "string"},
     password: {type: "string", minLength: 8, maxLength: 128},
     isActive: {type: "boolean"},
     firstName: {type: "string"},

@@ -3,7 +3,7 @@ const buildInstaListResponse = instaList => {
     return {
       id: insta.id,
       userId: insta.user_id,
-      agent: insta.agent,
+      tenant: insta.tenant,
       caption: insta.caption,
       feedId: insta.feed_id,
       mediaType: insta.media_type,

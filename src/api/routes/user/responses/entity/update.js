@@ -1,9 +1,8 @@
-import {USER_ROLE_CLIENT, USER_ROLE_PRODUCER} from "../../../../../services/constants/user.js";
-
 const buildUpdateResponse = user => {
   const userData = {
     id: user.id,
     email: user.email,
+    tenant: user.tenant,
     role: user.role,
     isActive: user.is_active,
     firstName: user.first_name,

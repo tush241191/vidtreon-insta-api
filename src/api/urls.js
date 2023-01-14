@@ -12,7 +12,7 @@ export default {
       logout: "/logout",
       validate: "/validate",
       fetch: "/:id/fetch",
-      fetchAll: "/:agent/fetchAll",
+      feeds: "/:tenant/feeds",
       instaList: "/:id/insta"
     }
   }

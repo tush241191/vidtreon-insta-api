@@ -41,18 +41,6 @@ class InstaFeedService extends BaseService {
     }
   }
 
-  static async fetchInstaFeedsByAgent(agent) {
-   
-    try {
-      return await InstaFeed.findMany({
-        where: {agent: agent}
-      });
-    } catch (err) {
-      console.log(err)
-      throw new DatabaseError(err);
-    }
-  }
-
 }
 
 export default InstaFeedService;

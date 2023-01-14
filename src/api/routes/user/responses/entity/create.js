@@ -2,7 +2,7 @@ const buildCreateResponse = user => {
   const userData = {
     id: user.id,
     email: user.email,
-    agent: user.agent,
+    tenant: user.tenant,
     role: user.role,
     isActive: user.is_active,
     firstName: user.first_name,
