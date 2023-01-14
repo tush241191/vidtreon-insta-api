@@ -1,9 +1,9 @@
 import axios from "axios";
-import {request, Router} from "express";
-import InstaFeedService from "../../../../../services/instaFeed.js";
+import {Router} from "express";
 
+import InstaFeedService from "../../../../../services/instaFeed.js";
 import UserService from "../../../../../services/user.js";
-import { requireValidUuid } from "../../../../middlewares/validate.js";
+import {requireValidUuid} from "../../../../middlewares/validate.js";
 import urls from "../../../../urls.js";
 
 const router = Router();
@@ -12,7 +12,7 @@ const middlewares = [requireValidUuid]
 export const InstaStatusTypes = {
   PUBLISHED: 'Published',
   NOT_PUBLISHED: 'Not Published',
-  RETRY: 'Retry',
+  RETRY: 'Retry'
 } 
 
 const buildInstaData = (data,userId) => {
@@ -24,7 +24,7 @@ const buildInstaData = (data,userId) => {
     media_url: data.media_url,
     status: InstaStatusTypes.NOT_PUBLISHED,
     title: data.title ? data.title : '',
-    desciption: data.desciption ? data.desciption : '',
+    desciption: data.desciption ? data.desciption : ''
   };
 
   return instaData;

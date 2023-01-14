@@ -1,6 +1,5 @@
 import {Router} from "express";
 
-import {USER_ROLE_ADMIN} from "../../../../../services/constants/user.js";
 import UserService from "../../../../../services/user.js";
 import {requireSchema} from "../../../../middlewares/validate.js";
 import {createSchema} from "../../../../schemas/user/create.js";
@@ -12,6 +11,7 @@ const router = Router();
 const buildUserData = data => {
   const userData = {
     email: data.email,
+    agent: data.agent,
     role: data.role,
     is_active: true,
     first_name: data.firstName,

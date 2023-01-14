@@ -1,4 +1,4 @@
-import { log } from "console";
+import {log} from "console";
 import {randomBytes} from "crypto";
 
 import DatabaseError from "../models/error.js";
@@ -37,6 +37,21 @@ class UserService extends BaseService {
     try {
       const user = await User.findUnique({
         where: {id}
+      });
+
+      if (!user) return null;
+
+      delete user.password;
+      return user;
+    } catch (err) {
+      throw new DatabaseError(err);
+    }
+  }
+
+  static async getByAgent(agent) {
+    try {
+      const user = await User.findUnique({
+        where: {agent: agent}
       });
 
       if (!user) return null;

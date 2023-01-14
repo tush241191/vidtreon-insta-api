@@ -12,6 +12,7 @@ export default {
       logout: "/logout",
       validate: "/validate",
       fetch: "/:id/fetch",
+      fetchAll: "/:agent/fetchAll",
       instaList: "/:id/insta"
     }
   }

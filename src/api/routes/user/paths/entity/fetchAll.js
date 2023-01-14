@@ -2,23 +2,21 @@ import {Router} from "express";
 
 import InstaFeedService from "../../../../../services/instaFeed.js";
 import UserService from "../../../../../services/user.js";
-import {requireValidUuid} from "../../../../middlewares/validate.js";
 import urls from "../../../../urls.js";
 import buildInstaListResponse from "../../responses/entity/instaList.js";
 
 const router = Router();
-const middlewares = [requireValidUuid]
 
-router.get(urls.user.entity.instaList, middlewares, async (req, res) => {
+router.get(urls.user.entity.fetchAll, async (req, res) => {
   try {
-    const userId = req.params.id;
-    const user = await UserService.get(userId);
+    const agent = req.params.agent;
+    const user = await UserService.getByAgent(agent);
 
     if (!user) {
-      throw new Error(`User ${userId} does not exist`);
+      throw new Error(`User ${agent} does not exist`);
     }
 
-    const list = await InstaFeedService.fetchInstaFeeds(userId)
+    const list = await InstaFeedService.fetchInstaFeeds(user.id)
     const response = buildInstaListResponse(list);
     res.json(response);
   } catch (err) {

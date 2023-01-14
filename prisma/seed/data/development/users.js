@@ -10,6 +10,7 @@ const generateRandomToken = () => {
 const inputUsers = [
   {
     email: "admin@vidtreon.com",
+    agent: "admin",
     password: "6Y8xz9XpwTX6ecQvge9IhgKlrCmdNzSQ7TMCJlk4",
     refresh_id: generateRandomToken(),
     first_name: "Admin",
@@ -23,6 +24,7 @@ const inputUsers = [
   },
   {
     email: "producer@vidtreon.com",
+    agent: "producer",
     password: "naWD7GentrI00O91WauM7nF1Cy7bvtjNuIjfR0ud",
     refresh_id: generateRandomToken(),
     first_name: "Producer",

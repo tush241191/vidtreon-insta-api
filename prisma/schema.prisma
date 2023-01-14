@@ -11,6 +11,7 @@ datasource db {
 model User {
   id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   email String @db.VarChar(255) @unique
+  agent String @db.VarChar(255) @unique
   password String @db.VarChar(255)
   insta_token String? @db.VarChar(255)
   refresh_id String @db.VarChar(255) @unique

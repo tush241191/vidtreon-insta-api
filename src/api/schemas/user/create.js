@@ -1,9 +1,10 @@
-import {USER_ROLE_CLIENT, USER_ROLE_PRODUCER, USER_ROLES} from "../../../services/constants/user.js";
+import {USER_ROLES} from "../../../services/constants/user.js";
 
 export const createSchema = {
   type: "object",
   required: [
     "email",
+    "agent",
     "password",
     "role",
     "instaToken",
@@ -15,6 +16,7 @@ export const createSchema = {
   additionalProperties: false,
   properties: {
     email: {type: "string", format: "email"},
+    agent: {type: "string"},
     password: {type: "string", minLength: 8, maxLength: 128},
     role: {type: "string", enum: USER_ROLES},
     instaToken: {type: "string"},
